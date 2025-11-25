@@ -1,0 +1,63 @@
+semenil@stdnserv1:~$ nano parametry.sh
+semenil@stdnserv1:~$ chmod +x parametry.sh
+semenil@stdnserv1:~$ ./parametry.sh 4 28 42
+Dzień urodzin: 5
+Miesiąc urodzin: 7
+-------------------------
+2
+7
+9
+semenil@stdnserv1:~$ cat parametry.sh
+#!/bin/bash
+# Skrypt 1 - Parametry skryptu
+# Autor: Illia Semenov, 50779
+
+dzien=5
+miesiac=7
+
+echo "Dzień urodzin: $dzien"
+echo "Miesiąc urodzin: $miesiac"
+echo "-------------------------"
+
+# Dla każdego parametru przekazanego do skryptu
+for liczba in "$@"
+do
+  wynik=$(( (liczba + miesiac) / dzien ))
+  echo "$wynik"
+done
+semenil@stdnserv1:~$ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

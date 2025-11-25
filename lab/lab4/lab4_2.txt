@@ -1,0 +1,43 @@
+semenil@stdnserv1:~$ nano lab4_2a.sh
+semenil@stdnserv1:~$ nano 
+semenil@stdnserv1:~$ ls
+a.out  lab2  lab4     lab4_2a.sh         run_cpp.sh
+file   lab3  lab4.sh  numer_indeksu.cpp  test_dir
+semenil@stdnserv1:~$ g++ numer_indeksu.cpp -o numer_indeksu
+semenil@stdnserv1:~$ ./numer_indeksu
+Nie podano numeru albumu!
+semenil@stdnserv1:~$ ./numer_indeksu 50779
+Poprawny numer albumu
+semenil@stdnserv1:~$ nano lab4_2b.sh
+semenil@stdnserv1:~$ cat lab4_2b.sh
+#!/bin/bash
+# autor: Illia Semenov 50779
+# lab4 zadanie 2 - wersja z kodem błędu
+
+while true; do
+  echo "Podaj numer albumu:"
+  read numer
+
+  ./numer_indeksu "$numer"
+  wynik=$?   # kod błędu z poprzedniego programu
+
+  if [ $wynik -eq 0 ]; then
+    echo "✅ Poprawny numer albumu!"
+    break
+  else
+    echo "❌ Błędny numer albumu, spróbuj ponownie."
+  fi
+done
+
+semenil@stdnserv1:~$ chmod +x lab4_2b.sh
+chmod +x numer_indeksu
+semenil@stdnserv1:~$ ./lab4_2b.sh
+Podaj numer albumu:
+55000
+Błędny numer albumu
+❌ Błędny numer albumu, spróbuj ponownie.
+Podaj numer albumu:
+50779
+Poprawny numer albumu
+✅ Poprawny numer albumu!
+semenil@stdnserv1:~$ 

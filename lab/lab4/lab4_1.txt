@@ -1,0 +1,443 @@
+Last login: Fri Nov  7 13:03:26 on ttys000
+admin@MacBook-Pro-admin-2 ~ % ssh semenil@stdnserv1.srv.vizja.pl -p 6000
+semenil@stdnserv1.srv.vizja.pl's password: 
+Permission denied, please try again.
+semenil@stdnserv1.srv.vizja.pl's password: 
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-160-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Fri Nov  7 12:17:22 PM UTC 2025
+
+  System load:  0.09              Processes:             315
+  Usage of /:   36.3% of 1.79TB   Users logged in:       24
+  Memory usage: 7%                IPv4 address for eno1: 10.0.254.250
+  Swap usage:   0%
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+5 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+New release '24.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+*** System restart required ***
+Last login: Fri Nov  7 12:06:13 2025 from 31.61.236.178
+semenil@stdnserv1:~$ mkdir -d lab4/lab4_1
+mkdir: invalid option -- 'd'
+Try 'mkdir --help' for more information.
+semenil@stdnserv1:~$ mkdir -p lab4/lab4_1
+semenil@stdnserv1:~$ rm -d lab4/lab4_1
+semenil@stdnserv1:~$ nano lab.sh 
+semenil@stdnserv1:~$ chmod +x lab4.sh
+chmod: cannot access 'lab4.sh': No such file or directory
+semenil@stdnserv1:~$ chmod +x lab.sh
+semenil@stdnserv1:~$ ./lab.sh
+-bash: ./lab.sh: autor: bad interpreter: No such file or directory
+semenil@stdnserv1:~$ cat ./lab.sh
+#!autor :Illia  Semenov 50779  
+#!/bin/bash
+
+echo "Pliki w /etc dla wzorca (I|L)(S|E)*"
+echo "-----------------------------------"
+
+# pętla po wszystkich dopasowanych plikach
+for file in /etc/[IL][SE]*; do
+  # sprawdzenie, czy plik istnieje (żeby uniknąć błędu gdy nic nie pasuje)
+  [ -e "$file" ] || continue
+  
+  # pobranie rozmiaru z ls i awk
+  size=$(ls -l "$file" | awk '{print $5}')
+  
+  # określenie typu
+  if [ -f "$file" ]; then
+    type="plik"
+  elif [ -d "$file" ]; then
+    type="katalog"
+  elif [ -L "$file" ]; then
+    type="link"
+  else
+    type="inny"
+  fi
+
+  # wyświetlenie wyniku
+  echo "$(basename "$file")  |  Rozmiar: $size  |  Typ: $type"
+done
+semenil@stdnserv1:~$ rm --help 
+Usage: rm [OPTION]... [FILE]...
+Remove (unlink) the FILE(s).
+
+  -f, --force           ignore nonexistent files and arguments, never prompt
+  -i                    prompt before every removal
+  -I                    prompt once before removing more than three files, or
+                          when removing recursively; less intrusive than -i,
+                          while still giving protection against most mistakes
+      --interactive[=WHEN]  prompt according to WHEN: never, once (-I), or
+                          always (-i); without WHEN, prompt always
+      --one-file-system  when removing a hierarchy recursively, skip any
+                          directory that is on a file system different from
+                          that of the corresponding command line argument
+      --no-preserve-root  do not treat '/' specially
+      --preserve-root[=all]  do not remove '/' (default);
+                              with 'all', reject any command line argument
+                              on a separate device from its parent
+  -r, -R, --recursive   remove directories and their contents recursively
+  -d, --dir             remove empty directories
+  -v, --verbose         explain what is being done
+      --help     display this help and exit
+      --version  output version information and exit
+
+By default, rm does not remove directories.  Use the --recursive (-r or -R)
+option to remove each listed directory, too, along with all of its contents.
+
+To remove a file whose name starts with a '-', for example '-foo',
+use one of these commands:
+  rm -- -foo
+
+  rm ./-foo
+
+Note that if you use rm to remove a file, it might be possible to recover
+some of its contents, given sufficient expertise and/or time.  For greater
+assurance that the contents are truly unrecoverable, consider using shred.
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/rm>
+or available locally via: info '(coreutils) rm invocation'
+semenil@stdnserv1:~$ rm -r lab.sh 
+semenil@stdnserv1:~$ nano lab4.sh 
+semenil@stdnserv1:~$ ./lab4.sh 
+-bash: ./lab4.sh: Permission denied
+semenil@stdnserv1:~$ chmod +x lab4.sh
+semenil@stdnserv1:~$ ./lab4.sh 
+Pliki w /etc dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ls /etc | grep -E '^(I|L)(S|E)'
+semenil@stdnserv1:~$ mkdir test_dir
+cd test_dir
+touch Isconfig Ieconfig Lsdata Lefile Otherfile
+ln -s Isconfig linkfile
+mkdir Lsdir
+semenil@stdnserv1:~/test_dir$  ls /etc | grep -E '^(I|L)(S|E)'
+semenil@stdnserv1:~/test_dir$ ./lab4.sh test_dir
+-bash: ./lab4.sh: No such file or directory
+semenil@stdnserv1:~/test_dir$ cd
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w /etc dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ls 
+a.out  file  lab2  lab3  lab4  lab4.sh  test_dir
+semenil@stdnserv1:~$ tree
+.
+├── a.out
+├── file
+│   └── Illia
+│       └── Semenov
+│           └── lab1
+│               ├── dokumenty
+│               │   ├── 50779.txt
+│               │   └── polecenia.txt
+│               ├── programy
+│               └── zrodla
+│                   └── hello.cpp
+├── lab2
+│   ├── bin
+│   │   └── 50779_IS
+│   ├── lab2_skrypt.sh
+│   ├── numer_indeksu.cpp
+│   ├── pliki.txt
+│   ├── polecenia.txt
+│   ├── policzone.txt
+│   └── znalezione.txt
+├── lab3
+│   ├── parametry.sh
+│   ├── petla1.sh
+│   ├── petla2.sh
+│   ├── petla3.sh
+│   └── program.c
+├── lab4
+├── lab4.sh
+└── test_dir
+    ├── Ieconfig
+    ├── Isconfig
+    ├── Lefile
+    ├── Lsdata
+    ├── Lsdir
+    ├── Otherfile
+    └── linkfile -> Isconfig
+
+13 directories, 23 files
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w /etc dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ chmod +x lab4.sh
+semenil@stdnserv1:~$ cat lab4.sh 
+#!/bin/bash
+# autor: Illia Semenov 50779
+
+echo "Pliki w /etc dla wzorca (I|L)(S|E)*"
+echo "-----------------------------------"
+
+for file in /etc/[IL][SE]*; do
+  [ -e "$file" ] || continue
+  size=$(ls -l "$file" | awk '{print $5}')
+  
+  if [ -f "$file" ]; then
+    type="plik"
+  elif [ -d "$file" ]; then
+    type="katalog"
+  elif [ -L "$file" ]; then
+    type="link"
+  else
+    type="inny"
+  fi
+echo "$(basename "$file")  |  Rozmiar: $size  |  Typ: $type"
+done
+
+semenil@stdnserv1:~$ rm -r lab4.sh 
+semenil@stdnserv1:~$ nano lab4.sh 
+semenil@stdnserv1:~$ chmod +x lab4.sh
+semenil@stdnserv1:~$ ./lab4.sh 
+Pliki w /etc dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w test_dir dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ls test_dir
+Ieconfig  Isconfig  Lefile  Lsdata  Lsdir  Otherfile  linkfile
+semenil@stdnserv1:~$ nano lab4.sh 
+semenil@stdnserv1:~$ chmod +x lab4.sh
+semenil@stdnserv1:~$ ./lab4.sh 
+Pliki w /etc dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w test_dir dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ cat lab4.sh | head -n 10
+#!/bin/bash
+# autor: Illia Semenov 50779
+
+DIR=${1:-/etc}
+
+echo "Pliki w $DIR dla wzorca (I|L)(S|E)*"
+echo "-----------------------------------"
+
+for file in "$DIR"/[IL][SE]*; do
+    [ -e "$file" ] || continue
+semenil@stdnserv1:~$ cat lab4.sh | head -n 13
+#!/bin/bash
+# autor: Illia Semenov 50779
+
+DIR=${1:-/etc}
+
+echo "Pliki w $DIR dla wzorca (I|L)(S|E)*"
+echo "-----------------------------------"
+
+for file in "$DIR"/[IL][SE]*; do
+    [ -e "$file" ] || continue
+    size=$(ls -l "$file" | awk '{print $5}')
+    
+    if [ -f "$file" ]; then
+semenil@stdnserv1:~$ tree 
+.
+├── a.out
+├── file
+│   └── Illia
+│       └── Semenov
+│           └── lab1
+│               ├── dokumenty
+│               │   ├── 50779.txt
+│               │   └── polecenia.txt
+│               ├── programy
+│               └── zrodla
+│                   └── hello.cpp
+├── lab2
+│   ├── bin
+│   │   └── 50779_IS
+│   ├── lab2_skrypt.sh
+│   ├── numer_indeksu.cpp
+│   ├── pliki.txt
+│   ├── polecenia.txt
+│   ├── policzone.txt
+│   └── znalezione.txt
+├── lab3
+│   ├── parametry.sh
+│   ├── petla1.sh
+│   ├── petla2.sh
+│   ├── petla3.sh
+│   └── program.c
+├── lab4
+├── lab4.sh
+└── test_dir
+    ├── Ieconfig
+    ├── Isconfig
+    ├── Lefile
+    ├── Lsdata
+    ├── Lsdir
+    ├── Otherfile
+    └── linkfile -> Isconfig
+
+13 directories, 23 files
+semenil@stdnserv1:~$ /etc/Is*
+/etc/Ie*
+/etc/Ls*
+/etc/Le*
+-bash: /etc/Is*: No such file or directory
+-bash: /etc/Ie*: No such file or directory
+-bash: /etc/Ls*: No such file or directory
+-bash: /etc/Le*: No such file or directory
+semenil@stdnserv1:~$ ls -l 
+total 44
+-rwxrwxr-x 1 semenil semenil 17264 Nov  5 10:07 a.out
+drwxrwxr-x 3 semenil semenil  4096 Nov  7 12:10 file
+drwxrwxr-x 3 semenil semenil  4096 Nov  5 11:52 lab2
+drwxrwxr-x 2 semenil semenil  4096 Nov  7 12:09 lab3
+drwxrwxr-x 2 semenil semenil  4096 Nov  7 12:19 lab4
+-rwxrwxr-x 1 semenil semenil   518 Nov  7 12:28 lab4.sh
+drwxrwxr-x 3 semenil semenil  4096 Nov  7 12:23 test_dir
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w test_dir dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ nano lab4.sh
+semenil@stdnserv1:~$ chmod +x lab4.sh
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w /home/semenil/test_dir dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ./lab4.sh
+Pliki w /etc dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ chmod +x lab4.sh
+./lab4.sh test_dir
+Pliki w /home/semenil/test_dir dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ cat lab4.sh 
+#!/bin/bash
+# autor: Illia Semenov 50779
+
+DIR=${1:-/etc}
+
+# zamiana względnej ścieżki na absolutną
+DIR=$(realpath "$DIR")
+
+echo "Pliki w $DIR dla wzorca (I|L)(S|E)*"
+echo "-----------------------------------"
+
+for file in "$DIR"/[IL][SE]*; do
+  [ -e "$file" ] || continue
+  size=$(ls -l "$file" | awk '{print $5}')
+  
+  if [ -f "$file" ]; then
+    type="plik"
+  elif [ -d "$file" ]; then
+    type="katalog"
+  elif [ -L "$file" ]; then
+    type="link"
+  else
+    type="inny"
+  fi
+
+  echo "$(basename "$file")  |  Rozmiar: $size  |  Typ: $type"
+done
+
+
+semenil@stdnserv1:~$ xshopt -s nocaseglob
+xshopt: command not found
+semenil@stdnserv1:~$ shopt -s nocaseglob
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w /home/semenil/test_dir dla wzorca (I|L)(S|E)*
+-----------------------------------
+semenil@stdnserv1:~$ ./test_dir
+-bash: ./test_dir: Is a directory
+semenil@stdnserv1:~$ nano run_cpp.sh
+semenil@stdnserv1:~$ chmod +x run_cpp.sh
+semenil@stdnserv1:~$ ./run_cpp.sh lab3/program.c
+🔧 Kompiluję lab3/program.c ...
+lab3/program.c:9:5: error: redefinition of ‘int main()’
+    9 | int main() {
+      |     ^~~~
+lab3/program.c:3:5: note: ‘int main()’ previously defined here
+    3 | int main() {
+      |     ^~~~
+❌ Kompilacja nie powiodła się.
+semenil@stdnserv1:~$ ./run_cpp.sh lab1/zrodla/hello.cpp
+Błąd: plik 'lab1/zrodla/hello.cpp' nie istnieje.
+semenil@stdnserv1:~$ ./run_cpp.sh test_dir
+Błąd: plik 'test_dir' nie istnieje.
+semenil@stdnserv1:~$ nano lab4.sh 
+semenil@stdnserv1:~$ chmod +x lab4.sh
+semenil@stdnserv1:~$ ./lab4.sh 
+Pliki w /etc dla wzorca I/S lub L/E (rozbite litery)
+----------------------------------------------------
+iscsi  |  Rozmiar: 
+348
+13334  |  Typ: katalog
+issue  |  Rozmiar: 26  |  Typ: plik
+issue.net  |  Rozmiar: 19  |  Typ: plik
+legal  |  Rozmiar: 267  |  Typ: plik
+lsb-release  |  Rozmiar: 104  |  Typ: plik
+semenil@stdnserv1:~$ ./lab4.sh test_dir
+Pliki w /home/semenil/test_dir dla wzorca I/S lub L/E (rozbite litery)
+----------------------------------------------------
+Ieconfig  |  Rozmiar: 0  |  Typ: plik
+Isconfig  |  Rozmiar: 0  |  Typ: plik
+Lefile  |  Rozmiar: 0  |  Typ: plik
+Lsdata  |  Rozmiar: 0  |  Typ: plik
+Lsdir  |  Rozmiar:   |  Typ: katalog
+semenil@stdnserv1:~$ ls -l 
+total 48
+-rwxrwxr-x 1 semenil semenil 17264 Nov  5 10:07 a.out
+drwxrwxr-x 3 semenil semenil  4096 Nov  7 12:10 file
+drwxrwxr-x 3 semenil semenil  4096 Nov  5 11:52 lab2
+drwxrwxr-x 2 semenil semenil  4096 Nov  7 12:09 lab3
+drwxrwxr-x 2 semenil semenil  4096 Nov  7 12:19 lab4
+-rwxrwxr-x 1 semenil semenil   930 Nov  7 12:45 lab4.sh
+-rwxrwxr-x 1 semenil semenil   822 Nov  7 12:40 run_cpp.sh
+drwxrwxr-x 3 semenil semenil  4096 Nov  7 12:23 test_dir
+semenil@stdnserv1:~$ 
+semenil@stdnserv1:~$ cat lab4.sh 
+#!/bin/bash
+# autor: Illia Semenov 50779
+
+# Jeśli podano katalog jako argument – użyj go, w przeciwnym razie /etc
+DIR=${1:-/etc}
+DIR=$(realpath "$DIR")
+
+echo "Pliki w $DIR dla wzorca I/S lub L/E (rozbite litery)"
+echo "----------------------------------------------------"
+
+# Ustawienie, żeby wielkość liter nie miała znaczenia
+shopt -s nocaseglob
+
+# Iteracja po plikach — rozdzielone wzorce, żeby uniknąć błędnej interpretacji
+for file in "$DIR"/I[S,E]* "$DIR"/L[S,E]*; do
+  # Jeśli plik nie istnieje (bo np. brak dopasowania) — pomiń
+  [ -e "$file" ] || continue
+
+  # Rozmiar (ls + awk)
+  size=$(ls -l "$file" | awk '{print $5}')
+
+  # Określenie typu
+  if [ -f "$file" ]; then
+    type="plik"
+  elif [ -d "$file" ]; then
+    type="katalog"
+  elif [ -L "$file" ]; then
+    type="link"
+  else
+    type="inny"
+  fi
+
+  # Wyświetlenie wyniku
+  echo "$(basename "$file")  |  Rozmiar: $size  |  Typ: $type"
+done
+
+
+semenil@stdnserv1:~$ 

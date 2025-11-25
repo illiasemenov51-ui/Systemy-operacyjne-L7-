@@ -1,0 +1,53 @@
+Last login: Sun Nov 23 18:33:42 on ttys000
+admin@MacBook-Pro-admin-2 ~ % ssh semenil@stdnserv1.srv.vizja.pl -p 6000
+semenil@stdnserv1.srv.vizja.pl's password: 
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-160-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue Nov 18 04:17:06 PM UTC 2025
+
+  System load:  3.47              Processes:             430
+  Usage of /:   36.4% of 1.79TB   Users logged in:       19
+  Memory usage: 9%                IPv4 address for eno1: 10.0.254.250
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+5 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+New release '24.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+*** System restart required ***
+Last login: Sun Nov 23 17:33:58 2025 from 213.134.163.94
+semenil@stdnserv1:~$ rm  pipes3Average.cpp
+semenil@stdnserv1:~$ nano pipes3Average.cpp
+semenil@stdnserv1:~$ rm pipes3
+semenil@stdnserv1:~$ g++ pipes3Average.cpp -o pipes3
+./pipes3
+
+
+
+
+5
+10
+20
+0
+(Parent:1189247): 5
+(Parent:1189247): 10
+(Parent:1189247): 20
+(Child2:1189249) Średnia = 11.6667
+semenil@stdnserv1:~$ 

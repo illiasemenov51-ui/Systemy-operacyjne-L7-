@@ -1,0 +1,223 @@
+Last login: Sat Nov 22 10:44:59 on console
+admin@MBP-admin-2 ~ % ssh semenil@stdnserv1.srv.vizja.pl -p 6000
+semenil@stdnserv1.srv.vizja.pl's password: 
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-160-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue Nov 18 04:17:06 PM UTC 2025
+
+  System load:  3.47              Processes:             430
+  Usage of /:   36.4% of 1.79TB   Users logged in:       19
+  Memory usage: 9%                IPv4 address for eno1: 10.0.254.250
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+5 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+New release '24.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+*** System restart required ***
+Last login: Sun Nov 16 21:58:31 2025 from 213.134.166.194
+semenil@stdnserv1:~$ nano pipes.cpp
+semenil@stdnserv1:~$ g++ pipes.cpp -o pipes
+semenil@stdnserv1:~$ ./pipes
+Dziecko otrzymało: Pozdrowienia od procesu rodzica!
+semenil@stdnserv1:~$ cat pipes.cpp
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <array>
+#include <algorithm>
+
+std::string pipeRead(int pipe)
+{
+    std::string message;
+    char buffer[256];
+
+    // TODO odczytać komunikat (tekst) z potoku i umieścić go w zmiennej message
+    // do czytania z potoku użyć funkcji read
+    ssize_t bytesRead = read(pipe, buffer, sizeof(buffer) - 1);
+    if (bytesRead > 0) {
+        buffer[bytesRead] = '\0';
+        message = buffer;
+    }
+
+    return message;
+}
+
+void pipeWrite(int pipe, std::string message)
+{
+    // TODO zapisać tekst z parametru message (tekst) do potoku
+    // do zapisu do potoku użyć funkcji write
+    // skorzystać z metody message.c_str()
+
+    write(pipe, message.c_str(), message.size());
+}
+
+std::vector<std::array<int, 2>> createPipes(int count)
+{
+    std::vector<std::array<int, 2>> pipes;
+
+    for (int i = 0; i < count; i++)
+    {
+        std::array<int, 2> pipe_fd;
+        if (pipe(pipe_fd.data()) == -1)
+        {
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+        pipes.push_back(pipe_fd);
+    }
+
+    return pipes;
+}
+
+int main()
+{
+    auto pipes = createPipes(1);
+    int fd_read = pipes[0][0];
+    int fd_write = pipes[0][1];
+
+    pid_t pid = fork();
+
+    if (pid == -1)
+    {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0)
+    {
+        // ---- Proces potomny ----
+        close(fd_write); // nie zapisuje do potoku
+
+        std::string received = pipeRead(fd_read);
+        std::cout << "Dziecko otrzymało: " << received << std::endl;
+
+        close(fd_read);
+    }
+    else
+    {
+        // ---- Proces macierzysty ----
+        close(fd_read); // nie czyta z potoku
+
+        std::string msg = "Pozdrowienia od procesu rodzica!";
+        pipeWrite(fd_write, msg);
+
+        close(fd_write);
+
+        wait(nullptr);
+    }
+
+    return 0;
+}
+
+semenil@stdnserv1:~$ nano piepes2.cpp
+semenil@stdnserv1:~$ g++ pipes2.cpp -o pipes2
+cc1plus: fatal error: pipes2.cpp: No such file or directory
+compilation terminated.
+semenil@stdnserv1:~$ g++ piepes2.cpp -o pipes2
+semenil@stdnserv1:~$ ./pipes2
+Rodzic otrzymał: komunikat przesłany przez potok
+semenil@stdnserv1:~$ cat piepes2.cpp
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <array>
+#include <algorithm>
+
+std::string pipeRead(int pipe)
+{
+    std::string message;
+
+    // TODO odczytać komunikat (tekst) z potoku i umieścić go w zmiennej message
+    // do czytania z potoku użyć funkcji read
+    char buffer[256];
+    ssize_t n = read(pipe, buffer, sizeof(buffer) - 1);
+    if (n > 0)
+    {
+        buffer[n] = '\0';
+        message = buffer;
+    }
+
+    return message;
+}
+
+void pipeWrite(int pipe, std::string message)
+{
+    // TODO zapisać tekst z parametru message (tekst) do potoku
+    // 	do zapisu do potoku użyć funkcji write
+    // skorzystać z metody message.c_str()
+
+    write(pipe, message.c_str(), message.size());
+}
+
+std::vector<std::array<int, 2>> createPipes(int count)
+{
+    std::vector<std::array<int, 2>> pipes;
+
+    for (int i = 0; i < count; i++)
+    {
+        std::array<int, 2> pipe_fd;
+
+        if (pipe(pipe_fd.data()) == -1)
+        {
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+
+        pipes.push_back(pipe_fd);
+    }
+
+    return pipes;
+}
+
+int main()
+{
+    auto pipes = createPipes(1);
+
+    if (fork() == 0)
+    {
+        // child
+        close(pipes[0][0]); // zamknąć koniec do czytania
+
+        std::string message = "komunikat przesłany przez potok";
+        pipeWrite(pipes[0][1], message);
+
+        close(pipes[0][1]);
+    }
+    else
+    {
+        // parent
+        close(pipes[0][1]); // zamknąć koniec do pisania
+
+        std::string received = pipeRead(pipes[0][0]);
+        std::cout << "Rodzic otrzymał: " << received << std::endl;
+
+        close(pipes[0][0]);
+        wait(NULL);
+    }
+
+    return 0;
+}
+
+semenil@stdnserv1:~$ 

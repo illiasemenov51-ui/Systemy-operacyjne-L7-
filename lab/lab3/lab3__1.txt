@@ -1,0 +1,131 @@
+Last login: Wed Nov  5 11:08:42 on ttys000
+admin@MacBook-Pro-admin-2 ~ % ssh semenil@stdnserv1.srv.vizja.pl -p 6000
+semenil@stdnserv1.srv.vizja.pl's password: 
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-160-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Nov  5 11:37:54 AM UTC 2025
+
+  System load:  0.0               Processes:             168
+  Usage of /:   36.3% of 1.79TB   Users logged in:       5
+  Memory usage: 5%                IPv4 address for eno1: 10.0.254.250
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+5 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+New release '24.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+*** System restart required ***
+Last login: Wed Nov  5 10:08:54 2025 from 213.134.163.94
+semenil@stdnserv1:~$ cat petla1.sh
+#!/bin/bash
+# Skrypt 1 - wyświetlanie wartości od x do y
+# Autor: Illia Semenov (50779)
+
+x=7
+y=9
+
+# Jeśli x > y, zamień wartości
+if [ $x -gt $y ]; then
+  temp=$x
+  x=$y
+  y=$temp
+fi
+
+# Jeśli x = y, zwiększ y o 2
+if [ $x -eq $y ]; then
+  y=$((y + 2))
+fi
+
+echo "Zakres: od $x do $y"
+
+for i in $(seq $x $y)
+do
+  echo $i
+done
+semenil@stdnserv1:~$ cat petla2.sh
+#!/bin/bash
+# Skrypt 2 - wyświetlanie miesięcy z pominięciem miesiąca urodzin
+# Autor: Illia Semenov (50779)
+
+miesiace="Styczeń Luty Marzec Kwiecień Maj Czerwiec Lipiec Sierpień Wrzesień Październik Listopad Grudzień"
+miesiac_urodzin=7
+numer=1
+
+for miesiac in $miesiace
+do
+  if [ $numer -eq $miesiac_urodzin ]; then
+    ((numer++))
+    continue
+  fi
+  echo "$numer - $miesiac"
+  ((numer++))
+done
+
+semenil@stdnserv1:~$ nano petla3.sh
+semenil@stdnserv1:~$ chmod +x petla1.sh petla2.sh petla3.sh
+semenil@stdnserv1:~$ ./petla1.sh
+./petla2.sh
+./petla3.sh
+Zakres: od 7 do 9
+7
+8
+9
+1 - Styczeń
+2 - Luty
+3 - Marzec
+4 - Kwiecień
+5 - Maj
+6 - Czerwiec
+8 - Sierpień
+9 - Wrzesień
+10 - Październik
+11 - Listopad
+12 - Grudzień
+1
+2
+3
+4
+5
+To jest Twój dzień urodzin! 🎉
+semenil@stdnserv1:~$ ./petla1.sh
+Zakres: od 7 do 9
+7
+8
+9
+semenil@stdnserv1:~$ ./petla2.sh
+1 - Styczeń
+2 - Luty
+3 - Marzec
+4 - Kwiecień
+5 - Maj
+6 - Czerwiec
+8 - Sierpień
+9 - Wrzesień
+10 - Październik
+11 - Listopad
+12 - Grudzień
+semenil@stdnserv1:~$ ./petla3.sh
+1
+2
+3
+4
+5
+To jest Twój dzień urodzin! 🎉
+semenil@stdnserv1:~$ 
