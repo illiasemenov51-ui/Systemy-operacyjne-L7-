@@ -1,0 +1,182 @@
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <array>
+#include <algorithm>
+#include <cstdlib>
+
+std::string streamRead(int fd)
+{
+    std::string msg;
+    char c;
+    ssize_t r;
+    // read until EOF (read returns 0)
+    while ((r = read(fd, &c, 1)) > 0)
+        msg += c;
+    return msg;
+}
+
+void streamWrite(int fd, const std::string &msg)
+{
+    ssize_t total = 0;
+    ssize_t len = (ssize_t)msg.size();
+    const char* buf = msg.c_str();
+    while (total < len)
+    {
+        ssize_t w = write(fd, buf + total, len - total);
+        if (w <= 0) break;
+        total += w;
+    }
+}
+
+std::string streamsRead(const std::vector<int> &fds)
+{
+    std::string msg = "{";
+    msg += std::to_string(getpid());
+    for (int fd : fds)
+    {
+        msg += ";";
+        msg += streamRead(fd);
+    }
+    msg += "}";
+    return msg;
+}
+
+std::vector<std::array<int,2>> createPipes(int n)
+{
+    std::vector<std::array<int,2>> pipes(n);
+    for (int i = 0; i < n; ++i)
+        if (pipe(pipes[i].data()) == -1)
+        {
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+    return pipes;
+}
+
+void closeAllExcept(const std::vector<std::array<int,2>> &pipes, const std::vector<int> &keep)
+{
+    for (const auto &p : pipes)
+        for (int end = 0; end < 2; ++end)
+        {
+            int fd = p[end];
+            if (std::find(keep.begin(), keep.end(), fd) == keep.end())
+                close(fd);
+        }
+}
+
+void closeList(const std::vector<int> &list)
+{
+    for (int fd : list) if (fd >= 0) close(fd);
+}
+
+int main()
+{
+    // We need 7 pipes for edges:
+    // 0: 1 -> 2
+    // 1: 2 -> 3
+    // 2: 2 -> 4
+    // 3: 2 -> 5
+    // 4: 3 -> 5
+    // 5: 4 -> 5
+    // 6: 5 -> parent
+    auto pipes = createPipes(7);
+
+    // --- CHILD 1: writes START into pipe 0 (1 -> 2)
+    pid_t pid;
+    pid = fork();
+    if (pid == 0)
+    {
+        // child 1: only write end pipes[0][1]
+        std::vector<int> keep = { pipes[0][1] };
+        closeAllExcept(pipes, keep);
+
+        // send a START leaf
+        streamWrite(pipes[0][1], "{START}");
+        closeList(keep);
+        _exit(0);
+    }
+
+    // --- CHILD 2: reads from pipe0 (from 1), sends to pipes 1,2,3 (to 3,4,5)
+    pid = fork();
+    if (pid == 0)
+    {
+        std::vector<int> keep = { pipes[0][0], pipes[1][1], pipes[2][1], pipes[3][1] };
+        closeAllExcept(pipes, keep);
+
+        // read incoming (from 1), build message, forward to 3,4,5
+        std::string msg = streamsRead({ pipes[0][0] }); // reads until EOF
+        // wrap with own pid
+        std::string out = "{" + std::to_string(getpid()) + ";" + msg + "}";
+        streamWrite(pipes[1][1], out); // to 3
+        streamWrite(pipes[2][1], out); // to 4
+        streamWrite(pipes[3][1], out); // to 5
+
+        closeList(keep);
+        _exit(0);
+    }
+
+    // --- CHILD 3: reads from pipe1 (from 2), sends to pipe4 (to 5)
+    pid = fork();
+    if (pid == 0)
+    {
+        std::vector<int> keep = { pipes[1][0], pipes[4][1] };
+        closeAllExcept(pipes, keep);
+
+        std::string msg = streamsRead({ pipes[1][0] });
+        std::string out = "{" + std::to_string(getpid()) + ";" + msg + "}";
+        streamWrite(pipes[4][1], out); // to 5
+
+        closeList(keep);
+        _exit(0);
+    }
+
+    // --- CHILD 4: reads from pipe2 (from 2), sends to pipe5 (to 5)
+    pid = fork();
+    if (pid == 0)
+    {
+        std::vector<int> keep = { pipes[2][0], pipes[5][1] };
+        closeAllExcept(pipes, keep);
+
+        std::string msg = streamsRead({ pipes[2][0] });
+        std::string out = "{" + std::to_string(getpid()) + ";" + msg + "}";
+        streamWrite(pipes[5][1], out); // to 5
+
+        closeList(keep);
+        _exit(0);
+    }
+
+    // --- CHILD 5: reads from pipes 3 (from 2), 4 (from 3), 5 (from 4), sends to pipe6 (to parent)
+    pid = fork();
+    if (pid == 0)
+    {
+        std::vector<int> keep = { pipes[3][0], pipes[4][0], pipes[5][0], pipes[6][1] };
+        closeAllExcept(pipes, keep);
+
+        // read all three inputs (each will reach EOF once their writers closed)
+        std::string msg = streamsRead({ pipes[3][0], pipes[4][0], pipes[5][0] });
+        std::string out = "{" + std::to_string(getpid()) + ";" + msg + "}";
+        streamWrite(pipes[6][1], out); // to parent
+
+        closeList(keep);
+        _exit(0);
+    }
+
+    // --- PARENT: close unused fds except read end of pipe6 and wait children
+    // parent should not hold any write ends that would prevent EOF:
+    closeAllExcept(pipes, { pipes[6][0] });
+
+    // read final message from child 5
+    std::string finalMsg = streamRead(pipes[6][0]);
+    std::cout << finalMsg << std::endl;
+
+    // close and wait children
+    close(pipes[6][0]);
+    for (int i = 0; i < 5; ++i) wait(nullptr);
+
+    return 0;
+}
+
+
