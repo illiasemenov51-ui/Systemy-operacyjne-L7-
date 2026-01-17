@@ -1,0 +1,152 @@
+
+semenil@:~$ cat pipes6.cpp
+cat: pipes6.cpp: No such file or directory
+semenil@:~$ ls
+a.out  lab2  lab4  lab5.3     pipes3             pipes6  run_cpp.sh
+file   lab3  lab5  pipe6.cpp  pipes3Average.cpp  r       test_dir
+semenil@:~$ cat pipe6.cpp
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <array>
+#include <algorithm>
+
+const int rows = 3;
+const int columns = 7;
+
+bool pipeRead(int pipe, int& value)
+{
+    int readed = 0;
+    readed = read(pipe, &value, sizeof(value));
+    if (readed == -1)
+    {
+        perror("Error reading pipe.");
+        exit(EXIT_FAILURE);
+    }
+    else if (readed == 0)
+        return false;
+    return true;
+}
+
+void pipeWrite(int pipe, int value)
+{
+    if (write(pipe, &value, sizeof(value)) == -1)
+    {
+        perror("Error writing pipe.");
+        exit(EXIT_FAILURE);
+    }
+}
+
+std::vector<std::array<int, 2>> createPipes(int count)
+{
+    std::vector<std::array<int, 2>> pipes;
+    for (int i = 0; i < count; ++i)
+    {
+        std::array<int, 2> newPipe;
+        if (pipe(newPipe.data()) == -1)
+        {
+            perror("Error creating pipe.");
+            exit(EXIT_FAILURE);
+        }
+        pipes.push_back(newPipe);
+    }
+    return pipes;
+}
+
+void computeAverageForRow(std::array<int, columns> values, int p)
+{
+    int sum = 0;
+    for (auto v : values)
+        sum += v;
+
+    pipeWrite(p, sum);
+    pipeWrite(p, values.size());
+}
+
+int main(int argc, char* argv[])
+{
+    std::array<std::array<int, columns>, rows> values = {
+        { {3,4,6,8,9,7,8}, 
+          {6,2,6,1,7,9,0}, 
+          {0,9,0,2,4,1,2} }
+    };
+
+    int read_pipes[rows];
+
+    for (int i = 0; i < rows; ++i)
+    {
+        int p[2];
+        pipe(p);
+
+        pid_t pid = fork();
+
+        if (pid < 0)
+        {
+            perror("fork error");
+            exit(EXIT_FAILURE);
+        }
+
+        if (pid == 0)
+        {
+            // --- CHILD ---
+            close(p[0]); // dziecko pisze, nie czyta
+
+            computeAverageForRow(values[i], p[1]);
+
+            close(p[1]);
+            return 0;
+        }
+        else
+        {
+            // --- PARENT ---
+            close(p[1]);          // rodzic czyta
+            read_pipes[i] = p[0]; // zapisujemy deskryptor
+        }
+    }
+
+    // --- parent reads results ---
+    int sum = 0;
+    int count = 0;
+
+    for (int i = 0; i < rows; ++i)
+    {
+        int value;
+        pipeRead(read_pipes[i], value);
+        sum += value;
+
+        pipeRead(read_pipes[i], value);
+        count += value;
+
+        close(read_pipes[i]);
+    }
+
+    // --- wait for all children (blokujące, nie aktywne) ---
+
+	//To nie jest aktywne oczekiwanie (nie busy-wait)!
+
+//wait(NULL) jest blokujące — proces czeka, aż którykolwiek proces potomny się zakończy.
+//CPU nie jest obciążone — proces po prostu „śpi”, dopóki jądro systemu go nie obudzi
+    for (int i = 0; i < rows; i++)
+        wait(NULL);
+
+    float average = (count > 0) ? (float)sum / count : 0.0f;
+    std::cout << "Average: " << average << "\n";
+
+    return 0;
+}
+
+semenil@:~$ nano pipes7.cpp
+semenil@:~$ g++ pipes7.cpp -o pipes7
+semenil@:~$ ./pipes7
+
+semenil@:~$ 
+semenil@:~$ ./pipes7
+
+semenil@:~$ rm pipes7.cpp
+semenil@:~$ nano pipes7.cpp
+semenil@:~$ g++ pipes7.cpp -o pipes7
+semenil@:~$ ./pipes7
+{1530165;{1530165;{1530162;{1530162;{START}}};{1530163;{1530163;{1530162;{1530162;{START}}}}};{1530164;{1530164;{1530162;{1530162;{START}}}}}}}
+semenil@:~$ 
